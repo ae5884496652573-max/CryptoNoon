@@ -89,6 +89,28 @@
             text-align: center;
         }
 
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .plan-item {
+            background: #170a0a;
+            border: 1px solid #e5091444;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .plan-item:active {
+            transform: scale(0.97);
+            background: #240c0c;
+        }
+        .plan-item h4 { margin: 0 0 5px 0; color: #ff6666; font-size: 14px; }
+        .plan-item p { margin: 0; color: #fff; font-size: 16px; font-weight: bold; }
+
         .quest-card {
             background-color: #120909;
             border: 1px solid #e5091433;
@@ -195,7 +217,7 @@
             border: 1px solid #e5091444;
             border-radius: 10px;
             overflow: hidden;
-            margin: 10px 0;
+            margin: 6px 0;
             align-items: center;
         }
         input[type="text"] {
@@ -215,6 +237,40 @@
             padding: 10px 15px;
             cursor: pointer;
         }
+
+        /* نافذة الشحن المنبثقة (Popup) */
+        #depositModal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #140707;
+            border: 2px solid #e50914;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            text-align: right;
+            box-shadow: 0 5px 25px rgba(229,9,20,0.5);
+        }
+        .wallet-option {
+            background: #1f0c0c;
+            border: 1px solid #e5091444;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            direction: ltr;
+            text-align: left;
+            word-break: break-all;
+            color: #ff9999;
+        }
     </style>
 </head>
 <body>
@@ -231,15 +287,43 @@
 
     <!-- صفحة التعدين -->
     <div id="page-mining" class="page-content active-page">
-        <div class="section-title">⛏ التعدين</div>
+        <div class="section-title">⛏ التعدين والشحن</div>
         
         <div class="card-box" style="background: linear-gradient(135deg, #120909, #1c0a0a); border: 2px solid #e5091466;">
-            <p style="color: #ff9999; font-size: 13px; margin: 0;">سرعة التعدين</p>
+            <p style="color: #ff9999; font-size: 13px; margin: 0;">سرعة التعدين الحالية</p>
             <h3 style="color: #fff; font-size: 22px;" id="miningSpeedDisplay">1.0 درجة/ساعة ⚡</h3>
-            <div style="font-size: 40px; margin: 15px 0;">⚡</div>
+            <div style="font-size: 40px; margin: 10px 0;">⚡</div>
             <p style="color: #ff6666; font-size: 12px;" id="miningTimerText">جاهز لبدء التعدين!</p>
             
             <button class="action-btn" id="claimMiningBtn" onclick="claimMiningReward()">بدء التعدين ⚡</button>
+        </div>
+
+        <div class="section-title" style="font-size: 14px; margin-top: 15px;">🚀 ترقية وشحن السرعة الفورية</div>
+        <div class="plans-grid">
+            <div class="plan-item" onclick="openDepositModal('سرعة 50+', '2.00')">
+                <h4>سرعة 50+</h4>
+                <p>$2.00</p>
+            </div>
+            <div class="plan-item" onclick="openDepositModal('سرعة 30+', '1.50')">
+                <h4>سرعة 30+</h4>
+                <p>$1.50</p>
+            </div>
+            <div class="plan-item" onclick="openDepositModal('سرعة 80+', '1.70')">
+                <h4>سرعة 80+</h4>
+                <p>$1.70</p>
+            </div>
+            <div class="plan-item" onclick="openDepositModal('سرعة 150+', '3.00')">
+                <h4>سرعة 150+</h4>
+                <p>$3.00</p>
+            </div>
+            <div class="plan-item" onclick="openDepositModal('سرعة 250+', '5.00')">
+                <h4>سرعة 250+</h4>
+                <p>$5.00</p>
+            </div>
+            <div class="plan-item" onclick="openDepositModal('سرعة 500+', '10.00')">
+                <h4>سرعة 500+</h4>
+                <p>$10.00</p>
+            </div>
         </div>
 
         <div class="balance-card">
@@ -270,7 +354,7 @@
         <div class="card-box">
             <p style="font-size: 13px; color: #ff9999; margin: 0;">إجمالي الأصدقاء المدعوين (أتموا 3 مهام)</p>
             <h3 style="color: #fff; font-size: 28px;" id="totalValidRefs">0</h3>
-            <p style="font-size: 11px; color: #aaa;">كل صديق تدعوه ويفعل 3 مهام يزيد سرعة التعدين . 0.5 درجة</p>
+            <p style="font-size: 11px; color: #aaa;">كل صديق تدعوه ويفعل 3 مهام يزيد سرعة التعدين 0.5 درجة</p>
         </div>
 
         <div class="card-box" style="text-align: right;">
@@ -308,7 +392,6 @@
                 <span style="color: #ff6666;">السحب مغلق</span>
                 <span id="withdrawConditionsText">0 / 3 أصدقاء</span>
             </div>
-            <!-- خانات العنوان والمبلغ مقفلة وغير مفعلة حتى اكتمال الشروط -->
             <input type="text" placeholder="عنوان محفظة LTC..." disabled style="border: 1px solid #444; border-radius: 8px; margin-bottom: 8px; background: #1a1a1a; text-align: left; direction: ltr; width: 100%; opacity: 0.5; cursor: not-allowed;">
             <input type="text" placeholder="المبلغ المراد سحبه..." disabled style="border: 1px solid #444; border-radius: 8px; margin-bottom: 10px; background: #1a1a1a; text-align: left; direction: ltr; width: 100%; opacity: 0.5; cursor: not-allowed;">
             <button class="action-btn disabled">🔒 أتمم الشروط والحد الأدنى لفتح السحب</button>
@@ -320,6 +403,31 @@
             <input type="text" id="ltcWalletInput" placeholder="عنوان محفظة LTC..." style="border: 1px solid #e5091444; border-radius: 8px; margin-bottom: 8px; background: #050b05; text-align: left; direction: ltr; width: 100%;">
             <input type="text" id="ltcAmountInput" placeholder="المبلغ المراد سحبه..." style="border: 1px solid #e5091444; border-radius: 8px; margin-bottom: 10px; background: #050b05; text-align: left; direction: ltr; width: 100%;">
             <button class="action-btn" onclick="submitWithdrawal()">تأكيد وإرسال السحب</button>
+        </div>
+    </div>
+
+    <!-- نافذة الشحن المنبثقة -->
+    <div id="depositModal">
+        <div class="modal-content">
+            <h3 style="color: #ff3333; margin-top: 0; font-size: 15px;" id="modalTitle">شحن الباقة</h3>
+            <p style="font-size: 12px; color: #ccc; margin: 5px 0;" id="modalPrice">المبلغ المطلوب: $0.00</p>
+            
+            <p style="font-size: 11px; color: #ffcc00; margin: 8px 0 3px 0;">صلاحية الرابط والعملية:</p>
+            <div id="depositTimer" style="font-size: 16px; font-weight: bold; color: #fff; direction: ltr; text-align: center; background: #260808; padding: 5px; border-radius: 6px; margin-bottom: 8px;">05:00</div>
+
+            <p style="font-size: 11px; color: #ff9999; margin: 5px 0 2px 0;">أرسل المبلغ علي إحدى المحافظ التالية:</p>
+            
+            <div style="font-size: 10px; color: #aaa; margin-top: 4px;">Litecoin (LTC):</div>
+            <div class="wallet-option">Ltc1qw4e0szatfy2dgavt7hahvq5j7scv3nr5gf64x3</div>
+
+            <div style="font-size: 10px; color: #aaa; margin-top: 4px;">TON Wallet:</div>
+            <div class="wallet-option">UQApd_hKvdil_QdNyWbzYDKD5EJWCEBMkD_7eGUtDsLS-HfO</div>
+
+            <div style="font-size: 10px; color: #aaa; margin-top: 4px;">USDT (TRC20):</div>
+            <div class="wallet-option">TXNaqqVXbTYqTFzAiHxSjy9YMHRTJ5T9Gb</div>
+
+            <button class="action-btn" style="margin-top: 10px; font-size: 13px; padding: 10px;" onclick="confirmDeposit()">تم التحويل (إرسال للمراجعة)</button>
+            <button class="go-btn" style="width: 100%; margin-top: 5px; background: #333;" onclick="closeDepositModal()">إلغاء</button>
         </div>
     </div>
 
@@ -350,7 +458,7 @@
         let userId = (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) ? tg.initDataUnsafe.user.id : 'user_' + Math.floor(Math.random() * 1000000);
         document.getElementById('refLink').value = `https://t.me/CryptoNoon_bot?start=${userId}`;
 
-        let userBalance = parseFloat(localStorage.getItem(`balance_${userId}`)) || 0.0000000000000;
+        let userBalance = parseFloat(localStorage.getItem(`balance_${userId}`)) || 0.0000000000000000;
         let miningSpeed = parseFloat(localStorage.getItem(`speed_${userId}`)) || 1.0;
         let validReferrals = parseInt(localStorage.getItem(`valid_refs_${userId}`)) || 0;
         let completedTasksCount = parseInt(localStorage.getItem(`completed_tasks_count_${userId}`)) || 0;
@@ -358,7 +466,8 @@
         let miningActiveTime = parseInt(localStorage.getItem(`mining_active_${userId}`)) || 0;
         let dayDuration = 24 * 60 * 60 * 1000;
 
-        // الـ 26 مهمة
+        let depositInterval = null;
+
         const tasksData = [
             { id: 1, name: "1", url: "https://www.effectivecpmnetwork.com/e1jv2pcy?key=77476a8369e329e1fa7ad6b0ae311ba1", rewardSpeed: 1.0 },
             { id: 2, name: "2", url: "https://cryptonoon1620.blogspot.com/2026/07/crypto-noon.html", rewardSpeed: 1.0 },
@@ -403,7 +512,6 @@
             checkWithdrawStatus();
         }
 
-        // تم جعل سرعة التعدين أبطأ بكثير جداً (أبطأ من السابق بكثير)
         setInterval(() => {
             let currentTime = new Date().getTime();
             let claimBtn = document.getElementById('claimMiningBtn');
@@ -422,7 +530,6 @@
                     claimBtn.classList.remove('disabled');
                     claimBtn.innerText = "بدء دورة جديدة ⚡";
                 } else {
-                    // تم تقليل معامل التعدين بشكل كبير ليكون بطيئاً جداً
                     userBalance += (miningSpeed * 0.000000000000005);
                     updateUI();
 
@@ -443,6 +550,39 @@
                 localStorage.setItem(`mining_active_${userId}`, miningActiveTime);
                 alert("🚀 تم بدء دورة التعدين بنجاح!");
             }
+        }
+
+        // إداراة نافذة الشحن والعداد 5 دقائق
+        function openDepositModal(planName, price) {
+            document.getElementById('modalTitle').innerText = "شحن: " + planName;
+            document.getElementById('modalPrice').innerText = "المبلغ المطلوب: $" + price;
+            document.getElementById('depositModal').style.display = 'flex';
+
+            let timeLeft = 300; // 5 دقائق بالثواني
+            let timerDisplay = document.getElementById('depositTimer');
+            
+            clearInterval(depositInterval);
+            depositInterval = setInterval(() => {
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                timerDisplay.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(depositInterval);
+                    timerDisplay.innerText = "انتهت صلاحية الرابط!";
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+            clearInterval(depositInterval);
+        }
+
+        function confirmDeposit() {
+            alert("🔔 تم استلام طلب الشحن بنجاح!\n\n• البقّة قيد المراجعة اليدوية.\n• سيتم تفعيل السرعة في حسابك خلال 24 ساعة.");
+            closeDepositModal();
         }
 
         function renderTasks() {
@@ -513,7 +653,6 @@
             let activeBox = document.getElementById('withdrawActiveBox');
             let textStatus = document.getElementById('withdrawConditionsText');
 
-            // الشرط الصارم: يجب أن يصل الرصيد إلى 0.001 LTC على الأقل + 3 إحالات/مهام مقبولة
             if (userBalance >= 0.001 && validReferrals >= 3) {
                 lockedBox.style.display = 'none';
                 activeBox.style.display = 'block';
@@ -533,7 +672,6 @@
                 return;
             }
 
-            // منع السحب نهائياً إذا كان المبلغ أقل من الحد الأدنى أو الرصيد لا يكفي
             if (amount < 0.001 || amount > userBalance) {
                 alert("❌ عذراً، لا يمكن إتمام السحب. تأكد أن المبلغ لا يقل عن الحد الأدنى (0.001 LTC) وأنه متوفر في رصيدك!");
                 return;
@@ -571,4 +709,3 @@
     </script>
 </body>
 </html>
-
